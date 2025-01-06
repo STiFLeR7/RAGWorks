@@ -1,22 +1,11 @@
-from transformers import pipeline
+from langchain.chains import RetrievalQA
+from langchain.chat_models import ChatOpenAI
 
 def setup_rag_pipeline(vector_store):
     """
-    Set up a RAG pipeline using a local QA model and FAISS retriever.
-
-    Args:
-        vector_store (FAISS): Vector store for document retrieval.
-
-    Returns:
-        function: A RAG pipeline function for answering queries.
+    Sets up the RAG pipeline with a retrieval-based QA system.
     """
-    qa_model = pipeline("question-answering", model="distilbert-base-uncased-distilled-squad")
     retriever = vector_store.as_retriever()
-
-    def rag_chain(query):
-        docs = retriever.get_relevant_documents(query)
-        context = " ".join(doc.page_content for doc in docs)
-        answer = qa_model(question=query, context=context)
-        return {"result": answer["answer"], "source_documents": docs}
-
+    llm = ChatOpenAI(temperature=0.0)
+    rag_chain = RetrievalQA.from_chain_type(llm, retriever=retriever, return_source_documents=True)
     return rag_chain

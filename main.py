@@ -3,6 +3,7 @@ from text_splitter import split_text_into_chunks
 from text_embedder import create_embeddings
 from rag_pipeline import setup_rag_pipeline
 import nltk 
+
 nltk.download('punkt')
 
 def main():
@@ -18,8 +19,11 @@ def main():
     print("Splitting text into chunks...")
     chunks = [chunk for doc in documents for chunk in split_text_into_chunks(doc)]
 
+    # Ensure all chunks are valid strings
+    cleaned_chunks = [chunk for chunk in chunks if isinstance(chunk, str) and chunk.strip()]
+
     print("Creating embeddings and building vector store...")
-    vector_store = create_embeddings(chunks)
+    vector_store = create_embeddings(cleaned_chunks)
 
     print("Setting up RAG pipeline...")
     rag_chain = setup_rag_pipeline(vector_store)

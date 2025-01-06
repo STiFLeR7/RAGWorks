@@ -1,41 +1,28 @@
-from pdf_extractor import extract_text_from_pdf
-from text_splitter import split_text_into_chunks
+from pdf_extractor import extract_text_from_pdfs
+from text_splitter import split_text
 from text_embedder import create_embeddings
-from rag_pipeline import setup_rag_pipeline
-import nltk 
-
-nltk.download('punkt')
 
 def main():
+    # Step 1: List of PDF file paths
     pdf_paths = [
-        r"D:\ML\Generative Adversarial Networks with Python Deep Learning Generative Models for Image Synthesis and Im.pdf",
-        r"D:\ML\Generative Deep Learning_ Teaching Machines to Paint, Write, Compose, and Play (2019, O’Reilly Media) .pdf",
-        r"D:\ML\Hands_On_Machine_Learning_with_Scikit_Learn_and_TensorFlow_Concepts_Tools_and_Techniques_to_Build_Inte.pdf"
-    ]
+        r"D:\ML\Generative Adversarial Networks with Python Deep Learning Generative Models for Image Synthesis and Im.pdf",  # Replace with actual file paths
+        r"D:\ML\Generative Deep Learning_ Teaching Machines to Paint, Write, Compose, and Play (2019, O’Reilly Media) .pdf",  # Add more files as needed
+        r"D:\ML\Hands_On_Machine_Learning_with_Scikit_Learn_and_TensorFlow_Concepts_Tools_and_Techniques_to_Build_Inte.pdf",
+    ]   
 
+    # Step 2: Extract text from PDFs
     print("Extracting text from PDFs...")
-    documents = [extract_text_from_pdf(path) for path in pdf_paths]
+    extracted_text = extract_text_from_pdfs(pdf_paths)
 
+    # Step 3: Split text into chunks
     print("Splitting text into chunks...")
-    chunks = [chunk for doc in documents for chunk in split_text_into_chunks(doc)]
+    chunks = split_text(extracted_text)
+    print(f"Total chunks: {len(chunks)}")
 
-    # Ensure all chunks are valid strings
-    cleaned_chunks = [chunk for chunk in chunks if isinstance(chunk, str) and chunk.strip()]
-
+    # Step 4: Create embeddings and build vector store
     print("Creating embeddings and building vector store...")
-    vector_store = create_embeddings(cleaned_chunks)
-
-    print("Setting up RAG pipeline...")
-    rag_chain = setup_rag_pipeline(vector_store)
-
-    while True:
-        query = input("Enter your query (or type 'exit' to quit): ")
-        if query.lower() == "exit":
-            break
-
-        result = rag_chain(query)
-        print(f"Answer: {result['result']}")
-        print(f"Sources: {result['source_documents']}")
+    vector_store = create_embeddings(chunks)
+    print("Vector store created successfully!")
 
 if __name__ == "__main__":
     main()

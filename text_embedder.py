@@ -1,12 +1,17 @@
-from langchain.embeddings import OpenAIEmbeddings
+from sentence_transformers import SentenceTransformer
 from langchain.vectorstores import FAISS
 
 def create_embeddings(chunks):
-    embeddings = OpenAIEmbeddings()
-    vector_store = FAISS.from_texts(chunks, embeddings)
-    return vector_store
+    """
+    Create embeddings from text chunks and store in FAISS vector database.
 
-if __name__ == "__main__":
-    chunks = ["This is the first chunk.", "This is the second chunk."]
-    vector_store = create_embeddings(chunks)
-    print("Vector store created with embeddings!")
+    Args:
+        chunks (list): List of text chunks.
+
+    Returns:
+        FAISS: Vector store with embeddings.
+    """
+    model = SentenceTransformer("all-MiniLM-L6-v2")
+    embeddings = [model.encode(chunk) for chunk in chunks]
+    vector_store = FAISS.from_embeddings(embeddings, chunks)
+    return vector_store
